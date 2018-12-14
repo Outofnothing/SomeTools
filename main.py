@@ -30,30 +30,25 @@ for file in files:
         img = cv2.imread(os.path.join(input_path, file))
         if img is not None :
             # Select ROI
-            img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-            # img_hsv = img
-            r = cv2.selectROI(img_hsv)
+            r = cv2.selectROI(img)
             # Crop image
-            imCrop = img_hsv[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
-            # 只取hue, saturation
-            img_hs = img_hsv[:, :, 0:2]
-            roi_hs = imCrop[:, :, 0:2]
-            average = average_of_image(roi_hs)
+            imCrop = img[int(r[1]):int(r[1] + r[3]), int(r[0]):int(r[0] + r[2])]
+            average = average_of_image(imCrop)
 
-            rows, cols, _ = img_hs.shape
-            output = np.zeros(img_hs.shape[0:2], img_hs.dtype)
+            rows, cols, _ = img.shape
+            output = np.zeros(img.shape[0:2], img.dtype)
             # 遍历图片
             for i in range(rows):
                 for j in range(cols):
-                    if distance(average, img_hs[i,j]) > 40:
+                    if distance(average, img[i, j]) > 50:
                         output[i, j] = 0
                     else:
                         output[i, j] = 255
 
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-            dilated = cv2.dilate(output, kernel)
-            cv2.imshow("final", dilated)
+            output = cv2.morphologyEx(output, cv2.MORPH_OPEN, kernel)
+            cv2.imshow("final", output)
             cv2.waitKey(0)
             filename = os.path.join(output_path, file)
-            cv2.imwrite(filename, dilated)
+            cv2.imwrite(filename, output)
 
