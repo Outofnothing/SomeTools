@@ -23,7 +23,6 @@ def distance(vec1, vec2):
 
 if not os.path.exists(output_path):
     os.makedirs(output_path)
-index = 1
 files = os.listdir(input_path)
 for file in files:
     if not os.path.isdir(file):
@@ -40,15 +39,18 @@ for file in files:
             # 遍历图片
             for i in range(rows):
                 for j in range(cols):
-                    if distance(average, img[i, j]) > 65:
+                    if distance(average, img[i, j]) > 68:
                         output[i, j] = 0
                     else:
                         output[i, j] = 255
 
-            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-            output = cv2.morphologyEx(output, cv2.MORPH_CLOSE, kernel)
+            kernel_erode = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
+            kernel_dilate = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+            output = cv2.dilate(output, kernel_dilate)
+            output = cv2.erode(output, kernel_erode)
             cv2.imshow("final", output)
             cv2.waitKey(0)
             filename = os.path.join(output_path, file)
             cv2.imwrite(filename, output)
+
 
